@@ -13,7 +13,7 @@ O **ClimaLite** é uma aplicação web leve e focada na facilidade de uso para c
 
 ## 📂 Estrutura do Repositório
 - `/` - Código-fonte da aplicação web (`index.html`)
-- `/docs` - Documentação acadêmica, relatórios parciais e capturas de tela.
+- `/relatorios` - Documentação acadêmica, relatórios parciais e capturas de tela.
 
 ---
 *Desenvolvido por Igor Leonardo Rezende Nascimento — Polo UNIVESP SJC.*
