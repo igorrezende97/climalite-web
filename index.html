@@ -186,17 +186,37 @@
       document.body.classList.toggle('high-contrast');
     }
 
-    function enviarFeedback() {
+    async function enviarFeedback() {
       const txt = document.getElementById('feedbackText').value;
       const status = document.getElementById('feedbackStatus');
+      
       if (txt.trim() === '') {
         status.style.color = 'red';
         status.innerText = 'Por favor, escreva uma mensagem antes de enviar.';
         return;
       }
-      status.style.color = 'green';
-      status.innerText = '✓ Obrigado! Seu feedback foi registrado temporariamente no navegador.';
-      document.getElementById('feedbackText').value = '';
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/feedback', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ mensagem: txt })
+        });
+
+        if (response.ok) {
+          status.style.color = 'green';
+          status.innerText = '✓ Feedback guardado com sucesso na base de dados SQLite!';
+          document.getElementById('feedbackText').value = '';
+        } else {
+          status.style.color = 'red';
+          status.innerText = 'Erro ao comunicar com a API.';
+        }
+      } catch (err) {
+        status.style.color = 'red';
+        status.innerText = 'Erro de ligação. O servidor FastAPI está a correr?';
+      }
     }
 
     // Carregar preferências salvas se existirem
@@ -204,6 +224,7 @@
       const savedCity = localStorage.getItem('climalite_city');
       if (savedCity) {
         document.getElementById('cityInput').value = savedCity;
+        document.getElementById('cidadeNome').innerText = savedCity;
       }
     };
 
