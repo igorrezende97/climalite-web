@@ -124,6 +124,11 @@
       color: #00ff00;
       border: 1px solid #00ff00;
     }
+
+    .loading-text {
+      font-style: italic;
+      opacity: 0.7;
+    }
   </style>
 </head>
 <body>
@@ -138,7 +143,7 @@
 
     <div class="search-box">
       <input type="text" id="cityInput" value="São José dos Campos" placeholder="Digite a cidade...">
-      <button class="primary" onclick="buscarClima()">Buscar</button>
+      <button class="primary" id="btnBuscar" onclick="buscarClima()">Buscar</button>
     </div>
 
     <div id="resultado" style="text-align: center;">
@@ -220,8 +225,11 @@
     }
 
     async function buscarClima() {
-      const city = document.getElementById('cityInput').value;
-      if (!city.trim()) return;
+      const cityInput = document.getElementById('cityInput');
+      const btnBuscar = document.getElementById('btnBuscar');
+      const city = cityInput.value.trim();
+      
+      if (!city) return;
       
       localStorage.setItem('climalite_city', city);
       
@@ -230,26 +238,35 @@
       const ventoValEl = document.getElementById('ventoVal');
       const umidadeValEl = document.getElementById('umidadeVal');
 
-      cidadeNomeEl.innerText = `A procurar por ${city}...`;
+      // Estado de Carregamento (Loading UX)
+      cidadeNomeEl.innerText = `Buscando dados de ${city}...`;
+      cidadeNomeEl.classList.add('loading-text');
+      tempValEl.innerText = '...';
+      ventoValEl.innerText = '...';
+      umidadeValEl.innerText = '...';
+      btnBuscar.disabled = true;
 
       try {
-        // 1. Obter coordenadas (Latitude e Longitude) da cidade inserida
+        // 1. Geocoding API
         const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=pt&format=json`);
         const geoData = await geoResponse.json();
 
         if (!geoData.results || geoData.results.length === 0) {
-          cidadeNomeEl.innerText = 'Cidade não encontrada';
+          cidadeNomeEl.innerText = '❌ Cidade não encontrada';
+          cidadeNomeEl.classList.remove('loading-text');
           tempValEl.innerText = '--';
           ventoValEl.innerText = '--';
           umidadeValEl.innerText = '--';
+          btnBuscar.disabled = false;
           return;
         }
 
         const loc = geoData.results[0];
         const nomeFormatado = `${loc.name} - ${loc.admin1 || loc.country || ''}`;
         cidadeNomeEl.innerText = nomeFormatado;
+        cidadeNomeEl.classList.remove('loading-text');
 
-        // 2. Obter dados meteorológicos atuais com base nas coordenadas obtidas
+        // 2. Weather Forecast API
         const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m`);
         const weatherData = await weatherResponse.json();
 
@@ -260,11 +277,14 @@
 
       } catch (err) {
         console.error(err);
-        cidadeNomeEl.innerText = 'Erro de ligação à API de Clima.';
+        cidadeNomeEl.innerText = '⚠️ Erro ao consultar serviços de clima.';
+        cidadeNomeEl.classList.remove('loading-text');
+      } finally {
+        btnBuscar.disabled = false;
       }
     }
 
-    // Carregar preferências salvas e buscar o clima ao iniciar a página
+    // Carregar preferências salvas e buscar clima inicial
     window.onload = function() {
       const savedCity = localStorage.getItem('climalite_city');
       if (savedCity) {
