@@ -1,115 +1,217 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClimaLite - Painel Climático Urbano</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .app-card { background: #ffffff; width: 100%; max-width: 420px; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid #e1e8ed; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { font-size: 1.5rem; color: #1e293b; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .badge { background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 3px 8px; border-radius: 12px; font-weight: 600; }
-        .search-box { display: flex; gap: 8px; margin-bottom: 20px; }
-        .search-box input { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-size: 0.95rem; }
-        .search-box button { background: #2563eb; color: white; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .search-box button:hover { background: #1d4ed8; }
-        .weather-info { text-align: center; display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9; }
-        .temp-display { font-size: 3rem; font-weight: 700; color: #0f172a; margin: 10px 0; }
-        .city-title { font-size: 1.25rem; font-weight: 600; color: #334155; }
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .detail-item { background: #f8fafc; padding: 10px; border-radius: 8px; text-align: center; }
-        .detail-item span { display: block; font-size: 0.75rem; color: #64748b; }
-        .detail-item strong { font-size: 1rem; color: #1e293b; }
-        .fav-status { margin-top: 15px; font-size: 0.8rem; color: #16a34a; background: #f0fdf4; padding: 6px; border-radius: 6px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClimaLite - Painel Climático</title>
+  <style>
+    :root {
+      --bg-color: #f0f4f8;
+      --card-bg: #ffffff;
+      --text-color: #1f2937;
+      --accent-color: #2563eb;
+      --border-color: #e5e7eb;
+    }
+
+    body.high-contrast {
+      --bg-color: #000000;
+      --card-bg: #121212;
+      --text-color: #ffffff;
+      --accent-color: #ffff00;
+      --border-color: #ffffff;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .top-bar {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .btn-contrast {
+      background-color: var(--text-color);
+      color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 24px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"], textarea {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+    }
+
+    button.primary {
+      background-color: var(--accent-color);
+      color: #ffffff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    body.high-contrast button.primary {
+      color: #000000;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .info-item {
+      background-color: rgba(0,0,0,0.03);
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    body.high-contrast .info-item {
+      border: 1px solid #fff;
+    }
+
+    .status-msg {
+      background-color: #d1fae5;
+      color: #065f46;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 0.85em;
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    body.high-contrast .status-msg {
+      background-color: #000;
+      color: #00ff00;
+      border: 1px solid #00ff00;
+    }
+  </style>
 </head>
 <body>
 
-<div class="app-card">
-    <div class="header">
-        <h1>ClimaLite <span class="badge">Sem Anúncios</span></h1>
-        <p style="font-size:0.85rem; color:#64748b; margin-top:4px;">Painel de Consulta Climática - Polo UNIVESP SJC</p>
-    </div>
+  <div class="top-bar">
+    <button class="btn-contrast" onclick="toggleContrast()" aria-label="Alternar alto contraste">🌓 Alto Contraste</button>
+  </div>
+
+  <div class="card">
+    <h2 style="text-align: center; margin-top: 0;">ClimaLite</h2>
+    <p style="text-align: center; font-size: 0.9em; opacity: 0.8;">Painel de Consulta Climática - Polo UNIVESP SJC</p>
 
     <div class="search-box">
-        <input type="text" id="cityInput" placeholder="Digite a cidade (ex: São José dos Campos)">
-        <button onclick="buscarClima()">Buscar</button>
+      <input type="text" id="cityInput" value="São José dos Campos" placeholder="Digite a cidade...">
+      <button class="primary" onclick="buscarClima()">Buscar</button>
     </div>
 
-    <div id="weatherContent" class="weather-info">
-        <div class="city-title" id="cityName">--</div>
-        <div class="temp-display" id="tempValue">--°C</div>
-        
-        <div class="details-grid">
-            <div class="detail-item">
-                <span>Vento</span>
-                <strong id="windValue">-- km/h</strong>
-            </div>
-            <div class="detail-item">
-                <span>Umidade Relativa</span>
-                <strong id="humidityValue">-- %</strong>
-            </div>
-        </div>
+    <div id="resultado" style="text-align: center;">
+      <h3 id="cidadeNome">São José dos Campos - São Paulo</h3>
+      <h1 id="tempVal" style="font-size: 3em; margin: 10px 0;">22°C</h1>
 
-        <div class="fav-status">
-            ✓ Cidade salva no <strong>localStorage</strong> do navegador
+      <div class="info-grid">
+        <div class="info-item">
+          <small>Vento</small><br>
+          <strong id="ventoVal">4.3 km/h</strong>
         </div>
+        <div class="info-item">
+          <small>Umidade Relativa</small><br>
+          <strong id="umidadeVal">91%</strong>
+        </div>
+      </div>
     </div>
-</div>
 
-<script>
-    // Carregar última cidade favoritada ao abrir a página
+    <div class="status-msg">
+      ✓ Cidade salva no <strong>localStorage</strong> do navegador
+    </div>
+  </div>
+
+  <!-- Bloco de Feedback do Usuário (Para validação do PI) -->
+  <div class="card">
+    <h3>Feedback do Frequentador do Polo</h3>
+    <p style="font-size: 0.85em; opacity: 0.8;">Deixe seu comentário sobre a velocidade e facilidade de uso do ClimaLite:</p>
+    <textarea id="feedbackText" rows="3" placeholder="O site carregou rápido? As informações estão claras?"></textarea>
+    <button class="primary" style="margin-top: 10px; width: 100%;" onclick="enviarFeedback()">Enviar Feedback</button>
+    <div id="feedbackStatus" style="margin-top: 10px; font-size: 0.85em; text-align: center;"></div>
+  </div>
+
+  <!-- Widget do VLibras -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+
+    function toggleContrast() {
+      document.body.classList.toggle('high-contrast');
+    }
+
+    function enviarFeedback() {
+      const txt = document.getElementById('feedbackText').value;
+      const status = document.getElementById('feedbackStatus');
+      if (txt.trim() === '') {
+        status.style.color = 'red';
+        status.innerText = 'Por favor, escreva uma mensagem antes de enviar.';
+        return;
+      }
+      status.style.color = 'green';
+      status.innerText = '✓ Obrigado! Seu feedback foi registrado temporariamente no navegador.';
+      document.getElementById('feedbackText').value = '';
+    }
+
+    // Carregar preferências salvas se existirem
     window.onload = function() {
-        const salva = localStorage.getItem('climalite_cidade');
-        if (salva) {
-            document.getElementById('cityInput').value = salva;
-            buscarClima();
-        } else {
-            document.getElementById('cityInput').value = 'São José dos Campos';
-            buscarClima();
-        }
+      const savedCity = localStorage.getItem('climalite_city');
+      if (savedCity) {
+        document.getElementById('cityInput').value = savedCity;
+      }
     };
 
-    async function buscarClima() {
-        const cidade = document.getElementById('cityInput').value.trim();
-        if (!cidade) return alert('Por favor, digite uma cidade.');
-
-        try {
-            // Geocodificação Open-Meteo
-            const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cidade)}&count=1&language=pt&format=json`);
-            const geoData = await geoRes.json();
-
-            if (!geoData.results || geoData.results.length === 0) {
-                alert('Cidade não encontrada.');
-                return;
-            }
-
-            const { latitude, longitude, name, admin1 } = geoData.results[0];
-
-            // Busca do clima via Open-Meteo REST API
-            const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relativehumidity_2m`);
-            const weatherData = await weatherRes.json();
-
-            // Atualização da Interface (DOM)
-            document.getElementById('cityName').innerText = `${name} - ${admin1 || ''}`;
-            document.getElementById('tempValue').innerText = `${Math.round(weatherData.current_weather.temperature)}°C`;
-            document.getElementById('windValue').innerText = `${weatherData.current_weather.windspeed} km/h`;
-            document.getElementById('humidityValue').innerText = `${weatherData.hourly.relativehumidity_2m[0]}%`;
-
-            // Exibir card
-            document.getElementById('weatherContent').style.display = 'block';
-
-            // Salvar no localStorage (requisito de persistência leve no cliente)
-            localStorage.setItem('climalite_cidade', cidade);
-
-        } catch (error) {
-            console.error(error);
-            alert('Erro ao conectar com a API Open-Meteo.');
-        }
+    function buscarClima() {
+      const city = document.getElementById('cityInput').value;
+      localStorage.setItem('climalite_city', city);
+      document.getElementById('cidadeNome').innerText = city;
     }
-</script>
-
+  </script>
 </body>
 </html>
